@@ -4,11 +4,9 @@ import expect from 'expect';
 import { loadUserHandler } from '../../src/helpers/loadUser';
 import { userExpired, userFound } from '../../src/actions';
 
-const coMocha = require('co-mocha');
 const mocha = require('mocha');
-coMocha(mocha);
 
-describe('helper - loadUser()', () => {
+describe('helper - loadUser()', async () => {
   let userManagerMock;
   let storeMock;
   let getUserStub;
@@ -27,20 +25,20 @@ describe('helper - loadUser()', () => {
     };
   });
 
-  it('should dispatch a valid user to the store', function* () {
+  it('should dispatch a valid user to the store', async function () {
     const validUser = { some: 'user' };
     getUserStub.returns(validUser);
 
-    yield* loadUserHandler(storeMock, userManagerMock);
+    await loadUserHandler(storeMock, userManagerMock);
 
     expect(dispatchStub.calledWith(userFound(validUser))).toEqual(true);
   });
 
-  it('should dispatch USER_EXPIRED when no valid user is present', function* () {
+  it('should dispatch USER_EXPIRED when no valid user is present', async function () {
     const invalidUser = { expired: true };
     getUserStub.returns(invalidUser);
 
-    yield* loadUserHandler(storeMock, userManagerMock);
+    await loadUserHandler(storeMock, userManagerMock);
 
     expect(dispatchStub.calledWith(userExpired())).toEqual(true);
   });

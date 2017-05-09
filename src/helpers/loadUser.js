@@ -1,7 +1,6 @@
-import co from 'co';
 import { userFound, userExpired } from '../actions';
 
-export function* loadUserHandler(store, userManager) {
+export async function loadUserHandler(store, userManager) {
   if (!store || !store.dispatch) {
     throw new Error('redux-oidc: You need to pass the redux store into the loadUser helper!');
   }
@@ -10,7 +9,7 @@ export function* loadUserHandler(store, userManager) {
     throw new Error('redux-oidc: You need to pass the userManager into the loadUser helper!');
   }
 
-  const user = yield userManager.getUser();
+  const user = await userManager.getUser();
 
   if (user && !user.expired) {
     store.dispatch(userFound(user));
@@ -20,5 +19,5 @@ export function* loadUserHandler(store, userManager) {
 }
 
 export default function loadUser(store, userManager) {
-  co(loadUserHandler(store, userManager));
+  return loadUserHandler(store, userManager);
 }

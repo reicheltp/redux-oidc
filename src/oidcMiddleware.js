@@ -1,6 +1,5 @@
 import { userExpired, userFound, loadingUser } from './actions';
 import { USER_EXPIRED, LOADING_USER } from './constants';
-import co from 'co';
 
 // store the user here to prevent future promise calls to getUser()
 export let storedUser = null;
@@ -16,7 +15,7 @@ export function removeStoredUser() {
 }
 
 // the middleware handler function
-export function* middlewareHandler(next, action, userManager) {
+export async function middlewareHandler(next, action, userManager) {
   // prevent an infinite loop of dispatches of these action types (issue #30)
   if (action.type === USER_EXPIRED || action.type === LOADING_USER) {
     return next(action);
@@ -24,7 +23,7 @@ export function* middlewareHandler(next, action, userManager) {
 
   if (!storedUser || storedUser.expired) {
     next(loadingUser());
-    let user = yield userManager.getUser();
+    let user = await userManager.getUser();
     if (!user || user.expired) {
       next(userExpired());
     } else {
@@ -43,6 +42,6 @@ export default function createOidcMiddleware(userManager) {
 
   // the middleware
   return (store) => (next) => (action) => {
-    co(middlewareHandler(next, action, userManager));
+    return middlewareHandler(next, action, userManager);
   }
 };
